@@ -2,7 +2,9 @@ pipeline {
     agent any
 
     environment {
-        EMAIL_RECIPIENT = 'developer@example.com'  // Change this to your email
+        MAVEN_HOME = "/opt/homebrew/Cellar/maven/3.9.9/libexec"
+        PATH = "${MAVEN_HOME}/bin:${env.PATH}"
+        EMAIL_RECIPIENT = 'Himanshunain770@gmail.com'
     }
 
     triggers {
@@ -13,14 +15,14 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Fetching source code...'
-                sh 'mvn clean package'  // Modify based on your project
+                sh 'mvn clean package'  
             }
         }
 
         stage('Unit and Integration Tests') {
             steps {
                 echo 'Running unit tests...'
-                sh 'mvn test'  // Modify based on your test framework
+                sh 'mvn test'
             }
             post {
                 always {
@@ -28,7 +30,7 @@ pipeline {
                         def testResult = currentBuild.result ?: 'SUCCESS'
                         emailext subject: "Jenkins Test Stage: ${testResult}",
                                  body: "Test stage completed with result: ${testResult}",
-                                 to: EMAIL_RECIPIENT
+                                 to: env.EMAIL_RECIPIENT
                     }
                 }
             }
@@ -37,14 +39,14 @@ pipeline {
         stage('Code Analysis') {
             steps {
                 echo 'Running code analysis...'
-                sh 'sonar-scanner'  // Use SonarQube or another tool
+                sh 'sonar-scanner'  // Ensure SonarQube is configured
             }
         }
 
         stage('Security Scan') {
             steps {
                 echo 'Performing security scan...'
-                sh 'dependency-check.sh --project my-app'  // Example using OWASP Dependency Check
+                sh './dependency-check.sh --project my-app'  // Ensure script is executable
             }
             post {
                 always {
@@ -52,7 +54,7 @@ pipeline {
                         def scanResult = currentBuild.result ?: 'SUCCESS'
                         emailext subject: "Jenkins Security Scan: ${scanResult}",
                                  body: "Security scan completed with result: ${scanResult}",
-                                 to: EMAIL_RECIPIENT
+                                 to: env.EMAIL_RECIPIENT
                     }
                 }
             }
@@ -68,7 +70,7 @@ pipeline {
         stage('Integration Tests on Staging') {
             steps {
                 echo 'Running integration tests on staging...'
-                sh 'curl -X GET http://staging-server/health'  // Modify as needed
+                sh 'curl -X GET http://staging-server/health'
             }
         }
 
@@ -76,7 +78,7 @@ pipeline {
             steps {
                 input message: 'Approve deployment to production?', ok: 'Deploy'
                 echo 'Deploying to production...'
-                sh 'scp target/app.jar user@production-server:/app/'  // Adjust for production
+                sh 'scp target/app.jar user@production-server:/app/'
             }
         }
     }
@@ -85,12 +87,8 @@ pipeline {
         success {
             emailext subject: "Jenkins Pipeline SUCCESS",
                      body: "The pipeline completed successfully!",
-                     to: EMAIL_RECIPIENT
+                     to: env.EMAIL_RECIPIENT
         }
         failure {
             emailext subject: "Jenkins Pipeline FAILURE",
-                     body: "The pipeline failed. Check Jenkins logs.",
-                     to: EMAIL_RECIPIENT
-        }
-    }
-}
+                  
