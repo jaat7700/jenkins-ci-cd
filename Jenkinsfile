@@ -1,29 +1,47 @@
 pipeline {
     agent any
+
     stages {
         stage('Clone Repository') {
             steps {
-                git branch: 'main', url: 'https://github.com/jaat7700/jenkins-ci-cd.git'
+                git 'https://github.com/jaat7700/jenkins-ci-cd.git'
             }
         }
         stage('Install Dependencies') {
             steps {
-                sh 'echo Installing dependencies...'
+                sh 'mvn clean install'
             }
         }
         stage('Run Tests') {
             steps {
-                sh 'echo Running tests...'
+                sh 'mvn test'
             }
         }
-        stage('Build Project') {
+        stage('Code Analysis') {
             steps {
-                sh 'echo Building project...'
+                sh 'mvn sonar:sonar'
             }
         }
-        stage('Deploy (Optional)') {
+        stage('Security Scan') {
             steps {
-                sh 'echo Deploying project...'
+                sh 'mvn verify'
+            }
+        }
+        stage('Deploy to Staging') {
+            steps {
+                sh 'echo Deploying to Staging...'
+            }
+        }
+        stage('Deploy to Production') {
+            steps {
+                sh 'echo Deploying to Production...'
+            }
+        }
+        stage('Send Email Notification') {
+            steps {
+                mail to: 'your-email@example.com',
+                     subject: 'Build Notification',
+                     body: "Build Status: ${currentBuild.currentResult}"
             }
         }
     }
