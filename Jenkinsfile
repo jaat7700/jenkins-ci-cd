@@ -91,4 +91,8 @@ pipeline {
         }
         failure {
             emailext subject: "Jenkins Pipeline FAILURE",
-                  
+                     body: "The pipeline failed. Check Jenkins logs for details.",
+                     to: env.EMAIL_RECIPIENT
+        }
+    }
+}
