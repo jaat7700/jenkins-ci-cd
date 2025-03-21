@@ -8,9 +8,9 @@ pipeline {
                 echo "Fetching the source code from the directory path specified by the environment variable: "
                 echo "Compiling the code and generating any necessary artifacts, updated"
                echo " updated"
-               echo"varun"
-                 echo"varun"
-                  echo"varun"
+               echo"himanshu"
+                 echo"himanshu"
+                  echo"himanshu"
             }
         }
         stage('Test') {
@@ -22,13 +22,13 @@ pipeline {
                 success {
                     emailext  subject: 'Unit Test Status - Success', 
                               body: 'Unit Test has been completed successfully.', 
-                              to: "varun4858.be22@chitkara.edu.in",
+                              to: "Himanshu4782.be22@chitkara.edu.in",
                               attachLog: true
                 }
                 failure {
                     emailext subject: 'Unit Test Status - Failure', 
                               body: 'Unit Test has failed.', 
-                              to: "varun4858.be22@chitkara.edu.in",
+                              to: "Himanshu4782.be22@chitkara.edu.in",
                               attachLog: true
                 }
             }
@@ -51,13 +51,13 @@ pipeline {
                 success {
                     emailext  subject: 'Security Scan Status - Success', 
                               body: 'Security Scan has been completed successfully.', 
-                              to: "varun4858.be22@chitkara.edu.in",
+                              to: "Himanshu4782.be22@chitkara.edu.in",
                               attachLog: true
                 }
                 failure {
                     emailext subject: 'Security Scan Status - Failure', 
                               body: 'Security Scan has failed.', 
-                              to: "varun4858.be22@chitkara.edu.in",
+                              to: "Himanshu4782.be22@chitkara.edu.in",
                               attachLog: true
                 }
             }
