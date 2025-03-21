@@ -4,6 +4,7 @@ pipeline {
     environment {
         GIT_REPO = 'https://github.com/jaat7700/jenkins-ci-cd.git'
         GIT_BRANCH = 'main'  // Change this if your branch name is different
+        EMAIL_RECIPIENT = 'your-email@example.com'  // Change this or use a Jenkins parameter
     }
 
     stages {
@@ -33,7 +34,9 @@ pipeline {
             steps {
                 script {
                     echo 'Running tests...'
-                    sh 'npm test || true'  // Prevents pipeline from failing if no tests exist
+                    catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
+                        sh 'npm test'  // Allows pipeline to continue but marks build as UNSTABLE if tests fail
+                    }
                 }
             }
         }
@@ -42,7 +45,9 @@ pipeline {
             steps {
                 script {
                     echo 'Performing static code analysis...'
-                    sh 'npm run lint || true'  // Modify based on your analysis tool (ESLint, SonarQube, etc.)
+                    catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
+                        sh 'npm run lint'  // Modify based on your analysis tool (ESLint, SonarQube, etc.)
+                    }
                 }
             }
         }
@@ -51,7 +56,9 @@ pipeline {
             steps {
                 script {
                     echo 'Performing security scan...'
-                    sh 'npm audit || true'  // Modify based on your security scanner (Snyk, Trivy, etc.)
+                    catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
+                        sh 'npm audit'  // Modify based on your security scanner (Snyk, Trivy, etc.)
+                    }
                 }
             }
         }
@@ -69,7 +76,7 @@ pipeline {
             steps {
                 script {
                     echo 'Deploying to Staging...'
-                    sh './deploy_staging.sh'  // Replace with actual deployment command
+                    sh 'chmod +x deploy_staging.sh && ./deploy_staging.sh'  // Ensure script is executable
                 }
             }
         }
@@ -78,7 +85,7 @@ pipeline {
             steps {
                 script {
                     echo 'Deploying to Production...'
-                    sh './deploy_production.sh'  // Replace with actual deployment command
+                    sh 'chmod +x deploy_production.sh && ./deploy_production.sh'  // Ensure script is executable
                 }
             }
         }
@@ -90,7 +97,7 @@ pipeline {
                     emailext(
                         subject: "Jenkins Build: ${currentBuild.fullDisplayName}",
                         body: "Build ${currentBuild.currentResult}: Check console output at ${env.BUILD_URL}",
-                        to: 'your-email@example.com'
+                        to: "${EMAIL_RECIPIENT}"
                     )
                 }
             }
