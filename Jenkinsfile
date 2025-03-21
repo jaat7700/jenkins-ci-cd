@@ -2,97 +2,81 @@ pipeline {
     agent any
 
     environment {
-        MAVEN_HOME = "/opt/homebrew/Cellar/maven/3.9.9/libexec"
-        PATH = "${MAVEN_HOME}/bin:${env.PATH}"
-        EMAIL_RECIPIENT = 'Himanshunain770@gmail.com'
-    }
-
-    triggers {
-        githubPush()
+        PROJECT_TYPE = 'node' // Change this to 'maven' or 'gradle' if needed
     }
 
     stages {
-        stage('Build') {
+        stage('Clone Repository') {
             steps {
-                echo 'Fetching source code...'
-                sh 'mvn clean package'  
+                git 'https://github.com/jaat7700/jenkins-ci-cd.git'
             }
         }
 
-        stage('Unit and Integration Tests') {
+        stage('Install Dependencies') {
             steps {
-                echo 'Running unit tests...'
-                sh 'mvn test'
-            }
-            post {
-                always {
-                    script {
-                        def testResult = currentBuild.result ?: 'SUCCESS'
-                        emailext subject: "Jenkins Test Stage: ${testResult}",
-                                 body: "Test stage completed with result: ${testResult}",
-                                 to: env.EMAIL_RECIPIENT
+                script {
+                    if (env.PROJECT_TYPE == 'node') {
+                        sh 'npm install'
+                    } else if (env.PROJECT_TYPE == 'maven') {
+                        sh 'mvn clean install'
+                    } else if (env.PROJECT_TYPE == 'gradle') {
+                        sh './gradlew build'
+                    } else {
+                        echo "No valid project type selected."
                     }
                 }
             }
         }
 
-        stage('Code Analysis') {
+        stage('Run Tests') {
             steps {
-                echo 'Running code analysis...'
-                sh 'sonar-scanner'  // Ensure SonarQube is configured
-            }
-        }
-
-        stage('Security Scan') {
-            steps {
-                echo 'Performing security scan...'
-                sh './dependency-check.sh --project my-app'  // Ensure script is executable
-            }
-            post {
-                always {
-                    script {
-                        def scanResult = currentBuild.result ?: 'SUCCESS'
-                        emailext subject: "Jenkins Security Scan: ${scanResult}",
-                                 body: "Security scan completed with result: ${scanResult}",
-                                 to: env.EMAIL_RECIPIENT
+                script {
+                    if (env.PROJECT_TYPE == 'node') {
+                        sh 'npm test'
+                    } else if (env.PROJECT_TYPE == 'maven') {
+                        sh 'mvn test'
+                    } else if (env.PROJECT_TYPE == 'gradle') {
+                        sh './gradlew test'
+                    } else {
+                        echo "Skipping tests."
                     }
                 }
             }
         }
 
-        stage('Deploy to Staging') {
+        stage('Build Project') {
             steps {
-                echo 'Deploying to staging...'
-                sh 'scp target/app.jar user@staging-server:/app/'  // Adjust for your setup
+                script {
+                    if (env.PROJECT_TYPE == 'node') {
+                        sh 'npm run build'
+                    } else if (env.PROJECT_TYPE == 'maven') {
+                        sh 'mvn package'
+                    } else if (env.PROJECT_TYPE == 'gradle') {
+                        sh './gradlew build'
+                    } else {
+                        echo "Skipping build."
+                    }
+                }
             }
         }
 
-        stage('Integration Tests on Staging') {
-            steps {
-                echo 'Running integration tests on staging...'
-                sh 'curl -X GET http://staging-server/health'
+        stage('Deploy (Optional)') {
+            when {
+                expression { return false } // Change to true if you need deployment
             }
-        }
-
-        stage('Deploy to Production') {
             steps {
-                input message: 'Approve deployment to production?', ok: 'Deploy'
-                echo 'Deploying to production...'
-                sh 'scp target/app.jar user@production-server:/app/'
+                echo 'Deploying application...'
+                // Add deployment script here, e.g., SCP to a server or Kubernetes
             }
         }
     }
 
     post {
         success {
-            emailext subject: "Jenkins Pipeline SUCCESS",
-                     body: "The pipeline completed successfully!",
-                     to: env.EMAIL_RECIPIENT
+            echo 'Pipeline completed successfully!'
         }
         failure {
-            emailext subject: "Jenkins Pipeline FAILURE",
-                     body: "The pipeline failed. Check Jenkins logs for details.",
-                     to: env.EMAIL_RECIPIENT
+            echo 'Pipeline failed! Check logs for issues.'
         }
     }
 }
