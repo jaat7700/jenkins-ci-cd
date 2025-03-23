@@ -1,12 +1,11 @@
 pipeline {
     agent any
     
-    environment {
-        EMAIL_RECIPIENT = 'himanshu4782.be23@chitkara.edu.in
-'
-        USER_EMAIL = 'himanshu4782.be23@chitkara.edu.in
-'
+    eenvironment {
+    EMAIL_RECIPIENT = 'himanshu4782.be23@chitkara.edu.in'
+    USER_EMAIL = 'himanshu4782.be23@chitkara.edu.in'
     }
+
 
     stages {
         stage('Build') {
