@@ -58,7 +58,7 @@ pipeline {
                 $SMTPSubject = "Jenkins Pipeline Execution: SUCCESS"
                 $SMTPBody = "The Jenkins pipeline has been executed successfully."
                 $SMTPUsername = "himanshu4782.be23@chitkara.edu.in"
-                $SMTPPassword = "${env.SMTP_PASS}"
+                $SMTPPassword = "ijif wmek pkif dmnq"
                 $SMTPEnableSSL = $true
 
                 $SMTPClient = New-Object System.Net.Mail.SmtpClient($SMTPServer, $SMTPPort)
@@ -80,7 +80,7 @@ pipeline {
                 $SMTPSubject = "Jenkins Pipeline Execution: FAILED"
                 $SMTPBody = "The Jenkins pipeline has failed. Please check the logs for details."
                 $SMTPUsername = "himanshu4782.be23@chitkara.edu.in"
-                $SMTPPassword = "${env.SMTP_PASS}"
+                $SMTPPassword = "ijif wmek pkif dmnq"
                 $SMTPEnableSSL = $true
 
                 $SMTPClient = New-Object System.Net.Mail.SmtpClient($SMTPServer, $SMTPPort)
