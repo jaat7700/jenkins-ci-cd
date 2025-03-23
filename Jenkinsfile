@@ -2,104 +2,82 @@ pipeline {
     agent any
 
     stages {
+        stage('Checkout') {
+            steps {
+                script {
+                    echo 'Fetching the source code from the repository'
+                    checkout scm
+                }
+            }
+        }
+
         stage('Build') {
             steps {
-                echo 'Stage 1: Building the application...'
-                echo 'Installing dependencies...'
-                echo 'Building the React application...'
+                echo 'Compiling the code and generating artifacts...'
             }
         }
 
-        stage('Unit and Integration Tests') {
+        stage('Test') {
             steps {
-                echo 'Stage 2: Running unit and integration tests using JUnit and Selenium'
+                echo 'Running unit tests...'
+                echo 'Running integration tests...'
             }
         }
 
-        stage('Code Analysis') {
+        stage('Code Quality Check') {
             steps {
-                echo 'Stage 3: Analyzing code using SonarQube'
+                echo 'Checking the quality of the code...'
             }
         }
 
         stage('Security Scan') {
             steps {
-                echo 'Stage 4: Performing security scan using OWASP ZAP'
+                echo 'Performing security scan on the code...'
             }
         }
 
         stage('Deploy to Staging') {
             steps {
-                echo 'Stage 5: Deploying application to AWS EC2 staging server'
+                echo 'Deploying the application to the staging environment...'
             }
         }
 
         stage('Integration Tests on Staging') {
             steps {
-                echo 'Stage 6: Running integration tests on staging environment'
+                echo 'Running integration tests on the staging environment...'
+            }
+        }
+
+        stage('Approval') {
+            steps {
+                script {
+                    echo 'Pausing for manual approval...'
+                    input message: 'Approve deployment to production?', ok: 'Deploy'
+                }
             }
         }
 
         stage('Deploy to Production') {
             steps {
-                echo 'Stage 7: Deploying application to AWS EC2 production server'
+                echo 'Deploying the application to the production environment...'
             }
         }
     }
 
     post {
-        success {
-            withCredentials([string(credentialsId: 'SMTP_PASSWORD', variable: 'SMTP_PASS')]) {
-                script {
-                    def smtpScript = """
-                    \$SMTPServer = "smtp.gmail.com"
-                    \$SMTPPort = 465
-                    \$SMTPFrom = "himanshu4782.be23@chitkara.edu.in"
-                    \$SMTPTo = "himanshu4782.be23@chitkara.edu.in"
-                    \$SMTPSubject = "Jenkins Pipeline Execution: SUCCESS"
-                    \$SMTPBody = "The Jenkins pipeline has been executed successfully."
-                    \$SMTPUsername = "himanshu4782.be23@chitkara.edu.in"
-                    \$SMTPPassword = "\$env:SMTP_PASS"
-                    \$SMTPEnableSSL = \$true
-
-                    \$SMTPClient = New-Object System.Net.Mail.SmtpClient(\$SMTPServer, \$SMTPPort)
-                    \$SMTPClient.EnableSsl = \$SMTPEnableSSL
-                    \$SMTPClient.Credentials = New-Object System.Net.NetworkCredential(\$SMTPUsername, \$SMTPPassword)
-                    \$SMTPClient.Send(\$SMTPFrom, \$SMTPTo, \$SMTPSubject, \$SMTPBody)
-                    """
-
-                    writeFile file: 'send_email.ps1', text: smtpScript
-                    powershell './send_email.ps1'
-                }
-            }
-            echo "Success Email Sent!"
-        }
-
-        failure {
-            withCredentials([string(credentialsId: 'SMTP_PASSWORD', variable: 'SMTP_PASS')]) {
-                script {
-                    def smtpScript = """
-                    \$SMTPServer = "smtp.gmail.com"
-                    \$SMTPPort = 465
-                    \$SMTPFrom = "himanshu4782.be23@chitkara.edu.in"
-                    \$SMTPTo = "himanshu4782.be23@chitkara.edu.in"
-                    \$SMTPSubject = "Jenkins Pipeline Execution: FAILED"
-                    \$SMTPBody = "The Jenkins pipeline has failed. Please check the logs for details."
-                    \$SMTPUsername = "himanshu4782.be23@chitkara.edu.in"
-                    \$SMTPPassword = "\$env:SMTP_PASS"
-                    \$SMTPEnableSSL = \$true
-
-                    \$SMTPClient = New-Object System.Net.Mail.SmtpClient(\$SMTPServer, \$SMTPPort)
-                    \$SMTPClient.EnableSsl = \$SMTPEnableSSL
-                    \$SMTPClient.Credentials = New-Object System.Net.NetworkCredential(\$SMTPUsername, \$SMTPPassword)
-                    \$SMTPClient.Send(\$SMTPFrom, \$SMTPTo, \$SMTPSubject, \$SMTPBody)
-                    """
-
-                    writeFile file: 'send_email.ps1', text: smtpScript
-                    powershell './send_email.ps1'
-                }
-            }
-            echo "Failure Email Sent!"
+        always {
+            emailext (
+                to: 'Himanshu4782.be23@chitkara.edu.in',
+                subject: "Jenkins Build Notification: ${currentBuild.currentResult}",
+                body: """
+                <p><strong>Jenkins Pipeline Execution Completed!</strong></p>
+                <p>Status: <b>${currentBuild.currentResult}</b></p>
+                <p>Check the Jenkins logs for details.</p>
+                <p>Build URL: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
+                """,
+                mimeType: 'text/html',
+                attachLog: true
+            )
         }
     }
 }
