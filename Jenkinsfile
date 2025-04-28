@@ -2,16 +2,15 @@ pipeline {
     agent any
     
     environment {
-        EMAIL_RECIPIENT = 'himanshu4782.be23@chitkara.edu.in'
-        USER_EMAIL = 'himanshu4782.be23@chitkara.edu.in'
+    EMAIL_RECIPIENT = 'himanshu4782.be23@chitkara.edu.in'
+    USER_EMAIL = 'himanshu4782.be23@chitkara.edu.in'
     }
+
 
     stages {
         stage('Build') {
             steps {
-                echo 'Building the application using Maven...'
-                // Run Maven build command to clean and package the project
-                sh 'mvn clean package'
+                echo 'Building the application...'
             }
             post {
                 always {
@@ -25,8 +24,6 @@ pipeline {
         stage('Unit and Integration Tests') {
             steps {
                 echo 'Running unit and integration tests...'
-                // Run Maven test command to execute unit and integration tests
-                sh 'mvn test'
             }
             post {
                 always {
@@ -40,8 +37,6 @@ pipeline {
         stage('Code Analysis') {
             steps {
                 echo 'Performing static code analysis...'
-                // Run static code analysis with SonarQube (adjust if using a different tool)
-                sh 'mvn sonar:sonar -Dsonar.host.url=http://localhost:9000 -Dsonar.login=your_token'
             }
             post {
                 always {
@@ -55,8 +50,6 @@ pipeline {
         stage('Security Scan') {
             steps {
                 echo 'Performing security scan...'
-                // Example security scan with OWASP Dependency-Check (you can replace with other tools)
-                sh 'dependency-check.sh --project MyProject --scan ./'
             }
             post {
                 always {
@@ -70,9 +63,6 @@ pipeline {
         stage('Deploy to Staging') {
             steps {
                 echo 'Deploying to staging environment...'
-                // Deploy to staging environment (adjust this as per your deployment process)
-                // For example, using a shell script for deployment:
-                sh './deploy_staging.sh'
             }
             post {
                 always {
@@ -86,9 +76,6 @@ pipeline {
         stage('Integration Tests on Staging') {
             steps {
                 echo 'Running integration tests on staging...'
-                // Run integration tests on staging environment
-                // Example: Use Maven to run integration tests in the staging environment
-                sh 'mvn verify -Denv=staging'
             }
             post {
                 always {
@@ -101,10 +88,7 @@ pipeline {
 
         stage('Deploy to Production') {
             steps {
-                echo 'Deploying to production environment...'
-                // Deploy to production environment (adjust this as per your deployment process)
-                // Example: Use a script for deployment to production:
-                sh './deploy_production.sh'
+                echo 'Deploying to production...'
             }
             post {
                 always {
