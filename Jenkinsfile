@@ -2,11 +2,10 @@ pipeline {
     agent any
 
     environment {
-        // Use Jenkins environment variables or credentials to store sensitive information securely
         SMTP_SERVER = 'smtp.gmail.com'
         SMTP_PORT = 587
-        SMTP_USERNAME = credentials('gmail-username')  // Jenkins credentials for the Gmail username
-        SMTP_PASSWORD = credentials('gmail-password')  // Jenkins credentials for the Gmail password
+        SMTP_USERNAME = credentials('himanshu4782.be23@chitkara.edu.in')  // Jenkins credentials for the Gmail username
+        SMTP_PASSWORD = credentials('hgmz zgzt uyyb ecfz')  // Jenkins credentials for the Gmail password
         SMTP_FROM = 'himanshu4782.be23@chitkara.edu.in'
         SMTP_TO = 'himanshu4782.be23@chitkara.edu.in'
     }
