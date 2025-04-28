@@ -10,8 +10,8 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building the application using Maven...'
-                // Run Maven build command if needed, adjust for your project
-                // sh 'mvn clean package'
+                // Run Maven build command to clean and package the project
+                sh 'mvn clean package'
             }
             post {
                 always {
@@ -25,8 +25,8 @@ pipeline {
         stage('Unit and Integration Tests') {
             steps {
                 echo 'Running unit and integration tests...'
-                // Run your tests here (e.g., using Maven, Gradle, or a testing framework)
-                // sh 'mvn test'
+                // Run Maven test command to execute unit and integration tests
+                sh 'mvn test'
             }
             post {
                 always {
@@ -40,8 +40,8 @@ pipeline {
         stage('Code Analysis') {
             steps {
                 echo 'Performing static code analysis...'
-                // Use a tool like SonarQube for code analysis (if configured)
-                // sh 'mvn sonar:sonar'
+                // Run static code analysis with SonarQube (adjust if using a different tool)
+                sh 'mvn sonar:sonar -Dsonar.host.url=http://localhost:9000 -Dsonar.login=your_token'
             }
             post {
                 always {
@@ -55,8 +55,8 @@ pipeline {
         stage('Security Scan') {
             steps {
                 echo 'Performing security scan...'
-                // If using tools like OWASP Dependency-Check or similar, add the command here
-                // sh 'dependency-check.sh'
+                // Example security scan with OWASP Dependency-Check (you can replace with other tools)
+                sh 'dependency-check.sh --project MyProject --scan ./'
             }
             post {
                 always {
@@ -70,8 +70,9 @@ pipeline {
         stage('Deploy to Staging') {
             steps {
                 echo 'Deploying to staging environment...'
-                // Add deployment steps for your staging environment (e.g., Docker, Kubernetes, etc.)
-                // sh './deploy_staging.sh'
+                // Deploy to staging environment (adjust this as per your deployment process)
+                // For example, using a shell script for deployment:
+                sh './deploy_staging.sh'
             }
             post {
                 always {
@@ -85,8 +86,9 @@ pipeline {
         stage('Integration Tests on Staging') {
             steps {
                 echo 'Running integration tests on staging...'
-                // Run tests in the staging environment
-                // sh 'mvn verify'
+                // Run integration tests on staging environment
+                // Example: Use Maven to run integration tests in the staging environment
+                sh 'mvn verify -Denv=staging'
             }
             post {
                 always {
@@ -100,8 +102,9 @@ pipeline {
         stage('Deploy to Production') {
             steps {
                 echo 'Deploying to production environment...'
-                // Add deployment steps for your production environment
-                // sh './deploy_production.sh'
+                // Deploy to production environment (adjust this as per your deployment process)
+                // Example: Use a script for deployment to production:
+                sh './deploy_production.sh'
             }
             post {
                 always {
