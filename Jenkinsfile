@@ -5,7 +5,7 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Stage 1: Initiating build process'
-                git branch: 'main', url: 'https://github.com/jaat7700/jenkins-ci-cd/edit/main/Jenkinsfile'
+                git branch: 'main', url: 'https://github.com/jaat7700/jenkins-ci-cd.git'
                 echo 'Fetching dependencies...'
                 echo 'Compiling React application...'
                 echo 'hello my name is Himanshu. hello message'
