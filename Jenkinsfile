@@ -7,12 +7,12 @@ pipeline {
                 echo 'Stage 1: Initiating build process'
                 git branch: 'main', url: 'https://github.com/jaat7700/jenkins-ci-cd/edit/main/Jenkinsfile'
                 echo 'Fetching dependencies...'
-                echo 'Compiling React application...
-                hello my name is Himanshu. hello message
+                echo 'Compiling React application...'
+                echo 'hello my name is Himanshu. hello message'
              }
         }
 
-         stage('Unit and Integration Tests') {
+        stage('Unit and Integration Tests') {
             steps {
                 echo 'Stage 2: Executing unit and integration tests'
                 echo 'JUnit and Selenium tests are running...'
