@@ -1,95 +1,117 @@
 pipeline {
     agent any
+    
+    environment {
+    EMAIL_RECIPIENT = 'himanshu4782.be23@chitkara.edu.in'
+    USER_EMAIL = 'himanshu4782.be23@chitkara.edu.in'
+    }
+
 
     stages {
         stage('Build') {
             steps {
-                echo 'Stage 1: Building the application...'
-                echo 'Installing dependencies...'
-                echo 'Building the React application...'
+                echo 'Building the application...'
+            }
+            post {
+                always {
+                    mail to: "${USER_EMAIL}",
+                         subject: 'Build Stage Completed',
+                         body: 'The build stage has completed. Check Jenkins logs for details.'
+                }
             }
         }
 
         stage('Unit and Integration Tests') {
             steps {
-                echo 'Stage 2: Running unit and integration tests using JUnit and Selenium'
+                echo 'Running unit and integration tests...'
+            }
+            post {
+                always {
+                    mail to: "${USER_EMAIL}",
+                         subject: 'Unit and Integration Tests Completed',
+                         body: 'The unit and integration tests have completed. Check Jenkins logs for details.'
+                }
             }
         }
 
         stage('Code Analysis') {
             steps {
-                echo 'Stage 3: Analyzing code using SonarQube'
+                echo 'Performing static code analysis...'
+            }
+            post {
+                always {
+                    mail to: "${USER_EMAIL}",
+                         subject: 'Code Analysis Completed',
+                         body: 'The code analysis stage has completed. Check Jenkins logs for details.'
+                }
             }
         }
 
         stage('Security Scan') {
             steps {
-                echo 'Stage 4: Performing security scan using OWASP ZAP'
+                echo 'Performing security scan...'
+            }
+            post {
+                always {
+                    mail to: "${USER_EMAIL}",
+                         subject: 'Security Scan Completed',
+                         body: 'The security scan has completed. Check the Jenkins logs for details.'
+                }
             }
         }
 
         stage('Deploy to Staging') {
             steps {
-                echo 'Stage 5: Deploying application to AWS EC2 staging server'
+                echo 'Deploying to staging environment...'
+            }
+            post {
+                always {
+                    mail to: "${USER_EMAIL}",
+                         subject: 'Deployment to Staging Completed',
+                         body: 'Deployment to the staging environment has completed. Check Jenkins logs for details.'
+                }
             }
         }
 
         stage('Integration Tests on Staging') {
             steps {
-                echo 'Stage 6: Running integration tests on staging environment'
+                echo 'Running integration tests on staging...'
+            }
+            post {
+                always {
+                    mail to: "${USER_EMAIL}",
+                         subject: 'Integration Tests on Staging Completed',
+                         body: 'Integration tests on staging have completed. Check Jenkins logs for details.'
+                }
             }
         }
 
         stage('Deploy to Production') {
             steps {
-                echo 'Stage 7: Deploying application to AWS EC2 production server'
+                echo 'Deploying to production...'
+            }
+            post {
+                always {
+                    mail to: "${USER_EMAIL}",
+                         subject: 'Deployment to Production Completed',
+                         body: 'Deployment to production has completed. Check Jenkins logs for details.'
+                }
             }
         }
     }
 
     post {
         success {
-            withCredentials([string(credentialsId: 'SMTP_PASSWORD', variable: 'SMTP_PASS')]) {
-                powershell '''
-                $SMTPServer = "smtp.gmail.com"
-                $SMTPPort = 587
-                $SMTPFrom = "himanshu4782.be23@chitkara.edu.in"
-                $SMTPTo = "himanshu4782.be23@chitkara.edu.in"
-                $SMTPSubject = "Jenkins Pipeline Execution: SUCCESS"
-                $SMTPBody = "The Jenkins pipeline has been executed successfully."
-                $SMTPUsername = "himanshu4782.be23@chitkara.edu.in"
-                $SMTPPassword = "${env.SMTP_PASS}"
-                $SMTPEnableSSL = $true
-
-                $SMTPClient = New-Object System.Net.Mail.SmtpClient($SMTPServer, $SMTPPort)
-                $SMTPClient.EnableSsl = $SMTPEnableSSL
-                $SMTPClient.Credentials = New-Object System.Net.NetworkCredential($SMTPUsername, $SMTPPassword)
-                $SMTPClient.Send($SMTPFrom, $SMTPTo, $SMTPSubject, $SMTPBody)
-                '''
-            }
-            echo "Success Email Sent!"
+            echo 'Pipeline executed successfully!'
+            mail to: "${USER_EMAIL}",
+                 subject: 'Pipeline Execution Successful',
+                 body: 'The entire pipeline has completed successfully.'
         }
-
         failure {
-            withCredentials([string(credentialsId: 'SMTP_PASSWORD', variable: 'SMTP_PASS')]) {
-                powershell '''
-                $SMTPServer = "smtp.gmail.com"
-                $SMTPPort = 587
-                $SMTPFrom = "himanshu4782.be23@chitkara.edu.in"
-                $SMTPTo = "himanshu4782.be23@chitkara.edu.in"
-                $SMTPSubject = "Jenkins Pipeline Execution: FAILED"
-                $SMTPBody = "The Jenkins pipeline has failed. Please check the logs for details."
-                $SMTPUsername = "himanshu4782.be23@chitkara.edu.in"
-                $SMTPPassword = "${env.SMTP_PASS}"
-                $SMTPEnableSSL = $true
-
-                $SMTPClient = New-Object System.Net.Mail.SmtpClient($SMTPServer, $SMTPPort)
-                $SMTPClient.EnableSsl = $SMTPEnableSSL
-                $SMTPClient.Credentials = New-Object System.Net.NetworkCredential($SMTPUsername, $SMTPPassword)
-                $SMTPClient.Send($SMTPFrom, $SMTPTo, $SMTPSubject, $SMTPBody)
-                '''
-            }
-            echo "Failure Email Sent!"
+            echo 'Pipeline failed! Check the logs for more details.'
+            mail to: "${USER_EMAIL}",
+                 subject: 'Pipeline Execution Failed',
+                 body: 'The pipeline has failed. Please check the Jenkins logs for more details.'
         }
     }
 }
