@@ -1,6 +1,16 @@
 pipeline {
     agent any
 
+    environment {
+        // Use Jenkins environment variables or credentials to store sensitive information securely
+        SMTP_SERVER = 'smtp.gmail.com'
+        SMTP_PORT = 587
+        SMTP_USERNAME = credentials('gmail-username')  // Jenkins credentials for the Gmail username
+        SMTP_PASSWORD = credentials('gmail-password')  // Jenkins credentials for the Gmail password
+        SMTP_FROM = 'himanshu4782.be23@chitkara.edu.in'
+        SMTP_TO = 'himanshu4782.be23@chitkara.edu.in'
+    }
+
     stages {
         stage('Build') {
             steps {
@@ -14,7 +24,7 @@ pipeline {
         stage('Unit and Integration Tests') {
             steps {
                 echo 'Stage 2: Executing unit and integration tests'
-                echo 'JUnit and Selenium tests are running...'
+                echo 'Running JUnit and Selenium tests...'
             }
         }
 
@@ -57,48 +67,31 @@ pipeline {
     post {
         success {
             script {
-                def powershellCommand = '''
-                $SMTPServer = "smtp.gmail.com"
-                $SMTPPort = 587
-                $SMTPFrom = "himanshu4782.be23@chitkara.edu.in"
-                $SMTPTo = "himanshu4782.be23@chitkara.edu.in"
-                $SMTPSubject = "Jenkins pipeline executed successfully!"
-                $SMTPBody = "The pipeline has been executed successfully."
-                $SMTPUsername = "himanshu4782.be23@chitkara.edu.in"
-                $SMTPPassword = "hgmz zgzt uyyb ecfz"  // Make sure to store this securely
-                $SMTPEnableSSL = $true
-
-                $SMTPClient = New-Object Net.Mail.SmtpClient($SMTPServer, $SMTPPort)
-                $SMTPClient.EnableSsl = $SMTPEnableSSL
-                $SMTPClient.Credentials = New-Object System.Net.NetworkCredential($SMTPUsername, $SMTPPassword)
-                $SMTPClient.Send($SMTPFrom, $SMTPTo, $SMTPSubject, $SMTPBody)
+                def emailBody = '''
+                    The Jenkins pipeline executed successfully. All stages completed without errors.
                 '''
-                powershell(powershellCommand)
+                sendEmail('Jenkins Pipeline Execution Successful', emailBody)
             }
             echo "Pipeline execution completed successfully!"
         }
 
         failure {
             script {
-                def powershellCommand = '''
-                $SMTPServer = "smtp.gmail.com"
-                $SMTPPort = 587
-                $SMTPFrom = "himanshu4782.be23@chitkara.edu.in"
-                $SMTPTo = "himanshu4782.be23@chitkara.edu.in"
-                $SMTPSubject = "FAILURE"
-                $SMTPBody = "Pipeline encountered errors during execution."
-                $SMTPUsername = "himanshu4782.be23@chitkara.edu.in"
-                $SMTPPassword = "hgmz zgzt uyyb ecfz"  // Make sure to store this securely
-                $SMTPEnableSSL = $true
-
-                $SMTPClient = New-Object Net.Mail.SmtpClient($SMTPServer, $SMTPPort)
-                $SMTPClient.EnableSsl = $SMTPEnableSSL
-                $SMTPClient.Credentials = New-Object System.Net.NetworkCredential($SMTPUsername, $SMTPPassword)
-                $SMTPClient.Send($SMTPFrom, $SMTPTo, $SMTPSubject, $SMTPBody)
+                def emailBody = '''
+                    The Jenkins pipeline encountered errors during execution. Please check the logs for details.
                 '''
-                powershell(powershellCommand)
+                sendEmail('Jenkins Pipeline Failed', emailBody)
             }
             echo "Pipeline execution encountered failures!"
         }
     }
+}
+
+// Send email function to avoid repetition (using Shell)
+def sendEmail(subject, body) {
+    sh """
+        echo "$body" | mail -s "$subject" "$SMTP_TO" -r "$SMTP_FROM" -S smtp="$SMTP_SERVER:$SMTP_PORT" \
+            -S smtp-auth=login -S smtp-auth-user="$SMTP_USERNAME" -S smtp-auth-password="$SMTP_PASSWORD" \
+            -S ssl-verify=ignore
+    """
 }
